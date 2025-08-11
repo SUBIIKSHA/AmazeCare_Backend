@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36310.24
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazeCareAPI", "AmazeCareAPI\AmazeCareAPI.csproj", "{80C58E59-8DF7-4E3E-85BA-01AAE4CBD869}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazeCareTest", "AmazeCareTest\AmazeCareTest.csproj", "{36CC5630-237A-4A5A-BDB7-6880903C4E62}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{80C58E59-8DF7-4E3E-85BA-01AAE4CBD869}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80C58E59-8DF7-4E3E-85BA-01AAE4CBD869}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80C58E59-8DF7-4E3E-85BA-01AAE4CBD869}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80C58E59-8DF7-4E3E-85BA-01AAE4CBD869}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36CC5630-237A-4A5A-BDB7-6880903C4E62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36CC5630-237A-4A5A-BDB7-6880903C4E62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36CC5630-237A-4A5A-BDB7-6880903C4E62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36CC5630-237A-4A5A-BDB7-6880903C4E62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F8568AC4-7B23-4290-84DD-F6EB3EF09681}
+	EndGlobalSection
+EndGlobal
