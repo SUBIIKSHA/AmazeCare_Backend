@@ -25,6 +25,19 @@ namespace AmazeCareAPI.Services
             _mapper = mapper;
         }
 
+        private async Task<bool> IsSlotAvailable(int doctorId, DateTime dateTime, int? excludeAppointmentId = null)
+        {
+            var allAppointments = await _appointmentRepo.GetAll();
+
+            return !allAppointments.Any(a =>
+                a.DoctorID == doctorId &&
+                a.AppointmentDateTime == dateTime &&
+                a.AppointmentID != excludeAppointmentId &&
+                a.StatusID != 4 && 
+                a.StatusID != 5    
+            );
+        }
+
         public async Task<AppointmentResponseDTO> BookAppointment(AppointmentRequestDTO request)
         {
             var patient = await _patientRepo.GetById(request.PatientID)
@@ -33,6 +46,21 @@ namespace AmazeCareAPI.Services
             var doctor = await _doctorRepo.GetById(request.DoctorID)
                 ?? throw new NotFoundException("doctors");
 
+            if (!await IsSlotAvailable(request.DoctorID, request.AppointmentDateTime))
+                throw new InvalidOperationException("The doctor is not available at this time slot.");
+
+            var allAppointments = await _appointmentRepo.GetAll();
+
+            var existingAppointment = allAppointments
+                .Where(a => a.PatientID == request.PatientID
+                         && a.DoctorID == request.DoctorID
+                         && a.AppointmentDateTime == request.AppointmentDateTime
+                         && (a.StatusID == 1 || a.StatusID == 2))
+                .FirstOrDefault();
+
+            if (existingAppointment != null)
+                throw new InvalidOperationException("You already have an appointment with this doctor at the same time.");
+
             var appointment = new Appointment
             {
                 PatientID = request.PatientID,
@@ -40,7 +68,7 @@ namespace AmazeCareAPI.Services
                 AppointmentDateTime = request.AppointmentDateTime,
                 Symptoms = request.Symptoms,
                 VisitReason = request.VisitReason,
-                StatusID = 1,
+                StatusID = 1, 
                 CreatedAt = DateTime.Now
             };
 
@@ -58,6 +86,63 @@ namespace AmazeCareAPI.Services
             };
         }
 
+        public async Task<Appointment> ApproveAppointment(int appointmentId, DateTime? scheduledDateTime)
+        {
+            var appointment = await _appointmentRepo.GetById(appointmentId)
+                ?? throw new NotFoundException("appointments");
+
+            var newDateTime = scheduledDateTime ?? appointment.AppointmentDateTime;
+
+            if (!await IsSlotAvailable(appointment.DoctorID, newDateTime, appointment.AppointmentID))
+                throw new InvalidOperationException("The doctor is not available at this time slot.");
+
+            appointment.AppointmentDateTime = newDateTime;
+            appointment.StatusID = 2;
+
+            return await _appointmentRepo.Update(appointmentId, appointment);
+        }
+
+        public async Task<Appointment> RescheduleAppointment(int appointmentId, DateTime newDateTime)
+        {
+            var appointment = await _appointmentRepo.GetById(appointmentId)
+                ?? throw new NotFoundException("appointments");
+
+            if (!await IsSlotAvailable(appointment.DoctorID, newDateTime, appointment.AppointmentID))
+                throw new InvalidOperationException("The doctor is not available at this time slot.");
+
+            appointment.AppointmentDateTime = newDateTime;
+            appointment.StatusID = 2;
+
+            return await _appointmentRepo.Update(appointmentId, appointment);
+        }
+
+        public async Task<Appointment> RejectAppointment(int appointmentId)
+        {
+            var appointment = await _appointmentRepo.GetById(appointmentId)
+                ?? throw new NotFoundException("appointments");
+
+            appointment.StatusID = 5; 
+            return await _appointmentRepo.Update(appointmentId, appointment);
+        }
+
+        public async Task<Appointment> CompleteAppointment(int appointmentId)
+        {
+            var appointment = await _appointmentRepo.GetById(appointmentId)
+                ?? throw new NotFoundException("appointments");
+
+            appointment.StatusID = 3; 
+            return await _appointmentRepo.Update(appointmentId, appointment);
+        }
+
+        public async Task<Appointment> CancelAppointment(int appointmentId)
+        {
+            var appointment = await _appointmentRepo.GetById(appointmentId)
+                ?? throw new NotFoundException("appointments");
+
+            appointment.StatusID = 4; 
+            return await _appointmentRepo.Update(appointmentId, appointment);
+        }
+
         public async Task<IEnumerable<Appointment>> GetAllAppointments()
         {
             var appointments = await _appointmentRepo.GetAll();
@@ -66,7 +151,6 @@ namespace AmazeCareAPI.Services
 
             return appointments;
         }
-
 
         public async Task<IEnumerable<Appointment>> GetAppointmentsByPatientId(int patientId)
         {
@@ -83,54 +167,6 @@ namespace AmazeCareAPI.Services
         {
             var all = await _appointmentRepo.GetAll();
             return all.Where(a => a.DoctorID == doctorId);
-        }
-
-        public async Task<Appointment> ApproveAppointment(int appointmentId, DateTime? scheduledDateTime)
-        {
-            var appointment = await _appointmentRepo.GetById(appointmentId)
-                ?? throw new NotFoundException("appointments");
-
-            appointment.AppointmentDateTime = scheduledDateTime ?? appointment.AppointmentDateTime;
-            appointment.StatusID = 2;
-            return await _appointmentRepo.Update(appointmentId, appointment);
-        }
-
-        public async Task<Appointment> RejectAppointment(int appointmentId)
-        {
-            var appointment = await _appointmentRepo.GetById(appointmentId)
-                ?? throw new NotFoundException("appointments");
-
-            appointment.StatusID = 5;
-            return await _appointmentRepo.Update(appointmentId, appointment);
-        }
-
-        public async Task<Appointment> CompleteAppointment(int appointmentId)
-        {
-            var appointment = await _appointmentRepo.GetById(appointmentId)
-                ?? throw new NotFoundException("appointments");
-
-            appointment.StatusID = 3;
-            return await _appointmentRepo.Update(appointmentId, appointment);
-        }
-
-        public async Task<Appointment> CancelAppointment(int appointmentId)
-        {
-            var appointment = await _appointmentRepo.GetById(appointmentId)
-                ?? throw new NotFoundException("appointments");
-
-            appointment.StatusID = 4;
-            return await _appointmentRepo.Update(appointmentId, appointment);
-        }
-
-        public async Task<Appointment> RescheduleAppointment(int appointmentId, DateTime newDateTime)
-        {
-            var appointment = await _appointmentRepo.GetById(appointmentId);
-            if (appointment == null)
-                throw new NotFoundException("appointments");
-
-            appointment.AppointmentDateTime = newDateTime;
-            appointment.StatusID = 2;
-            return await _appointmentRepo.Update(appointmentId, appointment);
         }
 
         public async Task<IEnumerable<Appointment>> GetAppointmentsByDate(DateTime date)
@@ -172,20 +208,12 @@ namespace AmazeCareAPI.Services
                 appointments = SortAppointments(appointments, request.Sort);
 
             var totalCount = appointments.Count();
-
             var result = PopulateDoctorAndPatientDetails(appointments);
 
-            if (result.Count < request.PageSize)
-            {
-                return new PaginatedAppointmentResponseDTO
-                {
-                    Appointments = result.ToList(),
-                    TotalNumberOfRecords = totalCount,
-                    PageNumber = request.PageNumber
-                };
-            }
-
-            result = result.Skip((request.PageNumber - 1) * request.PageSize).Take(request.PageSize).ToList();
+            result = result
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList();
 
             return new PaginatedAppointmentResponseDTO
             {

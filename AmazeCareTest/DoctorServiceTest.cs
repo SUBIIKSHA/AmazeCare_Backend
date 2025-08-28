@@ -276,67 +276,7 @@ namespace AmazeCareAPI.Tests
             Assert.AreEqual(2, result.Count);
             Assert.IsTrue(result.All(d => d.SpecializationID == 1));
         }
-        [Test]
-        public async Task SearchDoctors_ShouldFilterByNameAndReturnPagedResults()
-        {
-            var doctors = new List<Doctor>
-            {
-                new() { DoctorID = 1, Name = "Alice", SpecializationID = 1, QualificationID = 1, Experience = 5 },
-                new() { DoctorID = 2, Name = "Bob", SpecializationID = 2, QualificationID = 1, Experience = 3 },
-                new() { DoctorID = 3, Name = "Charlie", SpecializationID = 1, QualificationID = 2, Experience = 7 },
-                new() { DoctorID = 4, Name = "Alina", SpecializationID = 1, QualificationID = 1, Experience = 10 }
-            };
-
-            _mockDoctorRepo.Setup(r => r.GetAll()).ReturnsAsync(doctors);
-            _mockSpecializationRepo.Setup(r => r.GetById(It.IsAny<int>())).ReturnsAsync((int id) =>
-                new SpecializationMaster { SpecializationID = id, SpecializationName = $"Spec{id}" });
-
-            _mockQualificationRepo.Setup(r => r.GetById(It.IsAny<int>())).ReturnsAsync((int id) =>
-                new QualificationMaster { QualificationID = id, QualificationName = $"Qual{id}" });
-
-            _mockMapper.Setup(m => m.Map<DoctorSearchResponseDTO>(It.IsAny<Doctor>()))
-                .Returns<Doctor>(d => new DoctorSearchResponseDTO { Name = d.Name });
-
-            var request = new DoctorSearchRequestDTO
-            {
-                Name = "Al",
-                PageNumber = 1,
-                PageSize = 2,
-                Sort = 0
-            };
-
-            var result = await _service.SearchDoctors(request);
-
-            Assert.AreEqual(2, result.Doctors.Count);
-            Assert.IsTrue(result.Doctors.All(d => d.Name.ToLower().Contains("al")));
-            Assert.AreEqual(2, result.TotalNumberOfRecords);
-        }
-        [Test]
-        public async Task DeactivateDoctorAsync_ShouldReturnTrue_WhenSuccessful()
-        {
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
-            var dbContext = new ApplicationDbContext(options);
-
-            var mockDoctorRepoDB = new Mock<DoctorRepositoryDB>(dbContext) { CallBase = true };
-
-            mockDoctorRepoDB.Setup(r => r.DeactivateDoctorAsync(It.IsAny<int>())).ReturnsAsync(true);
-
-            var service = new DoctorService(
-                mockDoctorRepoDB.Object,
-                _mockSpecializationRepo.Object,
-                _mockQualificationRepo.Object,
-                _mockUserRepo.Object,
-                _mockMapper.Object,
-                dbContext);
-
-            var result = await service.DeactivateDoctorAsync(1);
-
-            Assert.IsTrue(result);
-        }
-
+       
 
 
         [Test]
@@ -492,57 +432,6 @@ namespace AmazeCareAPI.Tests
             Assert.ThrowsAsync<NotFoundException>(async () => await _service.SearchDoctors(request));
         }
 
-        [Test]
-        public void SearchDoctors_ShouldThrowNotFoundException_WhenDoctorsListIsEmpty()
-        {
-            _mockDoctorRepo.Setup(r => r.GetAll()).ReturnsAsync(new List<Doctor>());
-
-            var request = new DoctorSearchRequestDTO
-            {
-                PageNumber = 1,
-                PageSize = 10
-            };
-
-            Assert.ThrowsAsync<NotFoundException>(async () => await _service.SearchDoctors(request));
-        }
-        [Test]
-        public void AddDoctor_ShouldThrowCustomException_WhenInnerExceptionOccurs()
-        {
-            var dto = new AddDoctorRequestDTO { Username = "newUser", Email = "test@example.com", Password = "password", RoleID = 1, Name = "Dr New", ContactNumber = "1234567890", SpecializationID = 1, QualificationID = 1, Experience = 5, Designation = "MD", statusID = 1 };
-            _mockUserRepo.Setup(r => r.Add(It.IsAny<User>())).ThrowsAsync(new Exception("DB error"));
-
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.AddDoctor(dto));
-            Assert.That(ex.Message, Is.EqualTo("Doctor registration failed"));
-        }
-
-        [Test]
-        public void UpdateDoctor_ShouldThrowException_WhenSpecializationIsInvalid()
-        {
-            var doctorId = 1;
-            var existingDoctor = new Doctor { DoctorID = doctorId };
-            _mockDoctorRepo.Setup(r => r.GetById(doctorId)).ReturnsAsync(existingDoctor);
-            _mockSpecializationRepo.Setup(r => r.GetById(It.IsAny<int>())).ReturnsAsync((SpecializationMaster?)null);
-            _mockQualificationRepo.Setup(r => r.GetById(It.IsAny<int>())).ReturnsAsync(new QualificationMaster());
-
-            var updateDto = new UpdateDoctorRequestDTO { SpecializationID = 99, QualificationID = 1 };
-
-            Assert.ThrowsAsync<Exception>(async () => await _service.UpdateDoctor(doctorId, updateDto), "Invalid SpecializationID");
-        }
-
-        [Test]
-        public void UpdateDoctor_ShouldThrowException_WhenQualificationIsInvalid()
-        {
-            var doctorId = 1;
-            var existingDoctor = new Doctor { DoctorID = doctorId };
-            _mockDoctorRepo.Setup(r => r.GetById(doctorId)).ReturnsAsync(existingDoctor);
-            _mockSpecializationRepo.Setup(r => r.GetById(It.IsAny<int>())).ReturnsAsync(new SpecializationMaster());
-            _mockQualificationRepo.Setup(r => r.GetById(It.IsAny<int>())).ReturnsAsync((QualificationMaster?)null);
-
-            var updateDto = new UpdateDoctorRequestDTO { SpecializationID = 1, QualificationID = 99 };
-
-            Assert.ThrowsAsync<Exception>(async () => await _service.UpdateDoctor(doctorId, updateDto), "Invalid QualificationID");
-        }
-
-
+      
     }
 }

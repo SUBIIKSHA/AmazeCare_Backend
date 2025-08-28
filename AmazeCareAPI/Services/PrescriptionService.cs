@@ -36,6 +36,11 @@ namespace AmazeCareAPI.Services
 
             return _mapper.Map<PrescriptionResponseDTO>(fullPrescription);
         }
+        public async Task<IEnumerable<PrescriptionResponseDTO>> GetAllPrescriptionsAsync()
+        {
+            var prescriptions = await _prescriptionRepository.GetAll();
+            return _mapper.Map<IEnumerable<PrescriptionResponseDTO>>(prescriptions);
+        }
 
         public async Task<IEnumerable<PrescriptionResponseDTO>> GetPrescriptionsByRecordIdAsync(int recordId)
         {

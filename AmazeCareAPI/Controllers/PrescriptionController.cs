@@ -1,6 +1,7 @@
 ﻿using AmazeCareAPI.Models.DTOs;
 using AmazeCareAPI.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AmazeCareAPI.Controllers
@@ -8,6 +9,7 @@ namespace AmazeCareAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin,Doctor")]
+    [EnableCors("DefaultCORS")]
     public class PrescriptionController : ControllerBase
     {
         private readonly IPrescriptionService _prescriptionService;
@@ -16,6 +18,17 @@ namespace AmazeCareAPI.Controllers
         {
             _prescriptionService = prescriptionService;
         }
+        // GET: api/Prescription
+        [HttpGet]
+        public async Task<IActionResult> GetAllPrescriptions()
+        {
+            var result = await _prescriptionService.GetAllPrescriptionsAsync();
+            if (!result.Any())
+                return NotFound("No prescriptions available.");
+
+            return Ok(result);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> AddPrescription([FromBody] PrescriptionCreateDTO dto)

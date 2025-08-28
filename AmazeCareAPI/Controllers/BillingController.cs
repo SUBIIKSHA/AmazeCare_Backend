@@ -1,13 +1,14 @@
 ﻿using AmazeCareAPI.Models.DTOs;
 using AmazeCareAPI.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AmazeCareAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    
+    [EnableCors("DefaultCORS")]
     public class BillingController : ControllerBase
     {
         private readonly IBillingService _billingService;

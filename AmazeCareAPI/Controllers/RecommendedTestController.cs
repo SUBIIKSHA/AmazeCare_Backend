@@ -1,13 +1,16 @@
-﻿using AmazeCareAPI.Models.DTOs;
-using AmazeCareAPI.Exceptions;
+﻿using AmazeCareAPI.Exceptions;
+using AmazeCareAPI.Models.DTOs;
 using AmazeCareAPI.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AmazeCareAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [EnableCors("DefaultCORS")]
+
     public class RecommendedTestController : ControllerBase
     {
         private readonly IRecommendedTestService _service;

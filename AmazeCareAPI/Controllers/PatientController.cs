@@ -3,11 +3,13 @@ using AmazeCareAPI.Models;
 using AmazeCareAPI.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cors;
 
 namespace AmazeCareAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("DefaultCORS")]
     public class PatientController : ControllerBase
     {
         private readonly IPatientService _patientService;

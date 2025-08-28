@@ -54,6 +54,15 @@ namespace AmazeCareAPI
                 });
             });
 
+            builder.Services.AddCors(options => options.AddPolicy("DefaultCORS", policy =>
+            {
+                policy.WithOrigins("http://localhost:3000")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+        }));
+        
+
             builder.Services.AddAutoMapper(typeof(AmazeCareMapperProfile));
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -110,10 +119,9 @@ namespace AmazeCareAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseCors("DefaultCORS");
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapControllers();
 
             app.Run();

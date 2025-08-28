@@ -2,11 +2,14 @@
 using AmazeCareAPI.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cors;
+
 
 namespace AmazeCareAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("DefaultCORS")]
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthenticate _authenticateService;

@@ -1,6 +1,7 @@
 ﻿using AmazeCareAPI.Models.DTOs;
 using AmazeCareAPI.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AmazeCareAPI.Controllers
@@ -8,6 +9,7 @@ namespace AmazeCareAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin,Doctor")]
+    [EnableCors("DefaultCORS")]
     public class MedicalRecordController : ControllerBase
     {
         private readonly IMedicalRecordService _medicalRecordService;

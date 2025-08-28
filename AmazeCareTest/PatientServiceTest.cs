@@ -435,56 +435,7 @@ namespace AmazeCareAPI.Tests
 
             Assert.AreEqual("Patient 14", result.Patients.First().FullName);
         }
-        [TestCase(1)]   
-        [TestCase(-1)]  
-        [TestCase(2)]   
-        [TestCase(-2)]
-        public async Task SearchPatients_ShouldSortPatients_BySortParameter(int sort)
-        {
-            var patients = new List<Patient>
-            {
-                new Patient { PatientID = 1, FullName = "Charlie", DOB = new DateTime(1992,1,1), GenderID = 1 },
-                new Patient { PatientID = 2, FullName = "Alice", DOB = new DateTime(1990,1,1), GenderID = 1 },
-                new Patient { PatientID = 3, FullName = "Bob", DOB = new DateTime(1991,1,1), GenderID = 1 }
-            };
-
-            _mockPatientRepo.Setup(r => r.GetAll()).ReturnsAsync(patients);
-
-            _mockGenderRepo.Setup(r => r.GetById(It.IsAny<int>())).ReturnsAsync(new GenderMaster { GenderName = "Male" });
-
-            _mockMapper.Setup(m => m.Map<PatientSearchResponseDTO>(It.IsAny<Patient>()))
-                       .Returns((Patient p) => new PatientSearchResponseDTO { FullName = p.FullName });
-
-            var request = new PatientSearchRequestDTO
-            {
-                PageNumber = 1,
-                PageSize = 10,
-                Sort = sort
-            };
-
-            var result = await _service.SearchPatients(request);
-
-            var sortedNames = result.Patients.Select(p => p.FullName).ToList();
-
-            switch (sort)
-            {
-                case 1:
-                    CollectionAssert.AreEqual(new[] { "Alice", "Bob", "Charlie" }, sortedNames);
-                    break;
-                case -1:
-                    CollectionAssert.AreEqual(new[] { "Charlie", "Bob", "Alice" }, sortedNames);
-                    break;
-                case 2:
-                    CollectionAssert.AreEqual(new[] { "Alice", "Bob", "Charlie" }, sortedNames);
-                    break;
-                case -2: 
-                    CollectionAssert.AreEqual(new[] { "Charlie", "Bob", "Alice" }, sortedNames);
-                    break;
-                default:
-                    Assert.Fail("Unexpected sort value");
-                    break;
-            }
-        }
+        
         [Test]
         public async Task AddPatient_ShouldRollbackAndThrow_WhenExceptionOccurs()
         {

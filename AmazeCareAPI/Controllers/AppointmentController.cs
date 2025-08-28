@@ -1,20 +1,29 @@
-﻿using AmazeCareAPI.Interfaces;
+﻿using AmazeCareAPI.Contexts;
+using AmazeCareAPI.Interfaces;
 using AmazeCareAPI.Models;
 using AmazeCareAPI.Models.DTOs;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AmazeCareAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("DefaultCORS")]
     public class AppointmentController : ControllerBase
     {
         private readonly IAppointmentService _appointmentService;
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public AppointmentController(IAppointmentService appointmentService)
+        public AppointmentController(IAppointmentService appointmentService, ApplicationDbContext context, IMapper mapper)
         {
             _appointmentService = appointmentService;
+            _context = context;
+            _mapper = mapper;
         }
 
         [HttpPost("book")]
@@ -27,10 +36,17 @@ namespace AmazeCareAPI.Controllers
 
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<AppointmentSearchResponseDTO>>> GetAllAppointments()
+        public async Task<ActionResult<List<AppointmentResponseDTO>>> GetAllAppointments()
         {
-            var result = await _appointmentService.GetAllAppointments();
-            return Ok(result);
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .Include(a => a.Status)
+                .ToListAsync();
+
+            var appointmentDTOs = _mapper.Map<List<AppointmentResponseDTO>>(appointments);
+
+            return Ok(appointmentDTOs);
         }
 
         [HttpGet("byPatient/{patientId}")]
