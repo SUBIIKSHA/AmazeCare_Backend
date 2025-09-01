@@ -1,9 +1,10 @@
 ﻿using AmazeCareAPI.Exceptions;
+using AmazeCareAPI.Helpers;
 using AmazeCareAPI.Interfaces;
 using AmazeCareAPI.Models;
 using AmazeCareAPI.Models.DTOs;
-using AmazeCareAPI.Helpers;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -98,12 +99,28 @@ namespace AmazeCareAPI.Services
                 Username = user.UserName,
                 Role = user.Role.RoleName
             });
+            int? patientId = null;
+            int? doctorId = null;
+            if (user.Role.RoleName == "Patient")
+            {
+                var patients = await _patientRepository.GetAll(); 
+                var patient = patients.FirstOrDefault(p => p.UserName == user.UserName);
+                patientId = patient?.PatientID;
+            }
+            else if (user.Role.RoleName == "Doctor")
+            {
+                var doctors = await _doctorRepository.GetAll();
+                var doctor = doctors.FirstOrDefault(p => p.UserName == user.UserName);
+                doctorId = doctor?.DoctorID;
+            }
 
             return new LoginResponseDTO
             {
                 Username = user.UserName,
                 Role = user.Role.RoleName,
-                Token = token
+                Token = token,
+                PatientID = patientId,
+                DoctorID = doctorId
             };
         }
     }

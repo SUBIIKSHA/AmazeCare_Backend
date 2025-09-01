@@ -21,7 +21,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Doctor")]
+        [Authorize(Roles = "Admin,Doctor,Patient")]
         public async Task<IActionResult> GetAllDoctors()
         {
             var doctors = await _doctorService.GetAllDoctors();

@@ -265,7 +265,7 @@ namespace AmazeCareAPI.Services
                 var dto = _mapper.Map<AppointmentSearchResponseDTO>(appointment);
                 dto.DoctorName = appointment.Doctor?.Name ?? "N/A";
                 dto.PatientName = appointment.Patient?.FullName ?? "N/A";
-                dto.StatusName = appointment.Status?.StatusName ?? "N/A";
+                dto.Status = appointment.Status?.StatusName ?? "N/A";
                 return dto;
             }).ToList();
         }

@@ -38,7 +38,7 @@ namespace AmazeCareAPI.Mappers
             .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.FullName));
 
             CreateMap<Appointment, AppointmentSearchResponseDTO>()
-            .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status.StatusName))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.StatusName))
             .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.Name))
             .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.FullName));
 

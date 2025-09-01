@@ -19,7 +19,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Doctor")]
+        [Authorize(Roles = "Admin,Doctor,Patient")]
         public async Task<ActionResult<IEnumerable<BillingResponseDTO>>> GetAll()
         {
             var billings = await _billingService.GetAllAsync();

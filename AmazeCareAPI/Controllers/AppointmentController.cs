@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AmazeCareAPI.Controllers
 {
@@ -51,10 +53,20 @@ namespace AmazeCareAPI.Controllers
 
         [HttpGet("byPatient/{patientId}")]
         [Authorize(Roles = "Admin,Patient")]
-        public async Task<ActionResult<IEnumerable<AppointmentSearchResponseDTO>>> GetByPatient(int patientId)
+        public async Task<IActionResult> GetByPatient(int patientId)
         {
             var result = await _appointmentService.GetAppointmentsByPatientId(patientId);
-            return Ok(result);
+
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,  // Avoid circular refs
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = true  // Optional, formats JSON nicely
+            };
+
+            var json = JsonSerializer.Serialize(result, options);
+
+            return Content(json, "application/json");
         }
 
         [HttpGet("byDoctor/{doctorId}")]
@@ -90,7 +102,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpPut("cancel/{appointmentId}")]
-        [Authorize(Roles = "Doctor,Patient")]
+        [Authorize(Roles = "Doctor,Patient,Admin")]
         public async Task<ActionResult<Appointment>> CancelAppointment(int appointmentId)
         {
             var result = await _appointmentService.CancelAppointment(appointmentId);
@@ -98,7 +110,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpPut("reschedule/{appointmentId}")]
-        [Authorize(Roles = "Doctor,Patient")]
+        [Authorize(Roles = "Doctor,Patient,Admin")]
         public async Task<ActionResult<Appointment>> RescheduleAppointment(int appointmentId, [FromBody] DateTime newDateTime)
         {
             var result = await _appointmentService.RescheduleAppointment(appointmentId, newDateTime);
@@ -123,9 +135,26 @@ namespace AmazeCareAPI.Controllers
 
         [HttpGet("byStatus/{statusId}")]
         [Authorize(Roles = "Admin,Doctor")]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointmentsByStatus(int statusId)
+        public async Task<ActionResult<IEnumerable<AppointmentResponseDTO>>> GetAppointmentsByStatus(int statusId)
         {
-            var result = await _appointmentService.GetAppointmentsByStatus(statusId);
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .Include(a => a.Status)
+                .Where(a => a.StatusID == statusId)
+                .ToListAsync();
+
+            var result = appointments.Select(a => new AppointmentResponseDTO
+            {
+                AppointmentID = a.AppointmentID,
+                PatientName = a.Patient?.FullName ?? "Unknown",
+                DoctorName = a.Doctor?.Name ?? "Unknown",
+                AppointmentDateTime = a.AppointmentDateTime,
+                Symptoms = a.Symptoms,
+                VisitReason = a.VisitReason,
+                Status = a.Status?.StatusName ?? string.Empty
+            }).ToList();
+
             return Ok(result);
         }
     }

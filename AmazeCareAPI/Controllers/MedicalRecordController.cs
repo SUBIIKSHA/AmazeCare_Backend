@@ -8,7 +8,7 @@ namespace AmazeCareAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin,Doctor")]
+    [Authorize(Roles = "Admin,Doctor,Patient")]
     [EnableCors("DefaultCORS")]
     public class MedicalRecordController : ControllerBase
     {

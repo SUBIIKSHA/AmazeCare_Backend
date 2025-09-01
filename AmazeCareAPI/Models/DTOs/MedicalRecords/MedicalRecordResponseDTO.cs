@@ -3,6 +3,9 @@
     public class MedicalRecordDTO
     {
         public int RecordID { get; set; }
+        public int patientID { get; set; }
+        public int doctorID { get; set; }
+
         public int AppointmentID { get; set; }
         public string? Symptoms { get; set; }
         public string? PhysicalExamination { get; set; }

@@ -4,6 +4,7 @@
     {
         public int BillingID { get; set; }
         public int AppointmentID { get; set; }
+        public int PatientID { get; set; }
         public decimal TotalAmount { get; set; }
         public int StatusID { get; set; }
         public string StatusName { get; set; } = string.Empty;

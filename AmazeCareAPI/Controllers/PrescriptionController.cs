@@ -8,7 +8,6 @@ namespace AmazeCareAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin,Doctor")]
     [EnableCors("DefaultCORS")]
     public class PrescriptionController : ControllerBase
     {
@@ -20,6 +19,7 @@ namespace AmazeCareAPI.Controllers
         }
         // GET: api/Prescription
         [HttpGet]
+        [Authorize(Roles = "Admin,Doctor,Patient")]
         public async Task<IActionResult> GetAllPrescriptions()
         {
             var result = await _prescriptionService.GetAllPrescriptionsAsync();
@@ -30,7 +30,9 @@ namespace AmazeCareAPI.Controllers
         }
 
 
+
         [HttpPost]
+        [Authorize(Roles = "Admin,Doctor")]
         public async Task<IActionResult> AddPrescription([FromBody] PrescriptionCreateDTO dto)
         {
             if (!ModelState.IsValid)
@@ -41,6 +43,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpGet("record/{recordId}")]
+        [Authorize(Roles = "Admin,Doctor")]
         public async Task<IActionResult> GetByRecordId(int recordId)
         {
             var result = await _prescriptionService.GetPrescriptionsByRecordIdAsync(recordId);

@@ -10,5 +10,6 @@
 
         public string SpecializationName { get; set; } = string.Empty;
         public string QualificationName { get; set; } = string.Empty;
+        public int StatusID { get; set; }
     }
 }
