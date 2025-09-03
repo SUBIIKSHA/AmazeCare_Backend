@@ -27,6 +27,19 @@ namespace AmazeCareAPI.Controllers
             return Ok(patients);
         }
 
+        [HttpGet("byDoctor/{doctorId}")]
+        [Authorize(Roles = "Admin,Doctor")]
+        public async Task<IActionResult> GetPatientsByDoctor(int doctorId)
+        {
+            var patients = await _patientService.GetPatientsByDoctorIdAsync(doctorId);
+            if (patients == null || !patients.Any())
+            {
+                return NotFound($"No patients found for doctor with ID {doctorId}");
+            }
+            return Ok(patients);
+        }
+
+
         [HttpGet("status/{statusId}")]
         [Authorize(Roles = "Admin,Doctor")]
         public async Task<IActionResult> GetPatientsByStatus(int statusId)
@@ -36,7 +49,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,Doctor")]
+        [Authorize(Roles = "Admin,Doctor,Patient")]
         public async Task<ActionResult<Patient>> GetPatientById(int id)
         {
             var patient = await _patientService.GetPatientById(id);
@@ -54,7 +67,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Patient")]
         public async Task<ActionResult<Patient>> UpdatePatient(int id, [FromBody] UpdatePatientRequestDTO request)
         {
             var updatedPatient = await _patientService.UpdatePatient(id, request);

@@ -5,6 +5,7 @@ using AmazeCareAPI.Models;
 using AmazeCareAPI.Repositories;
 using AmazeCareAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -21,9 +22,11 @@ namespace AmazeCareAPI
             builder.Services.AddControllers()
                   .AddJsonOptions(options =>
                   {
-                      options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+                      options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
                       options.JsonSerializerOptions.WriteIndented = true;
                   });
+
+
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
@@ -119,6 +122,25 @@ namespace AmazeCareAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseExceptionHandler(errorApp =>
+            {
+                errorApp.Run(async context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    context.Response.ContentType = "application/json";
+
+                    var error = context.Features.Get<IExceptionHandlerFeature>();
+                    if (error != null)
+                    {
+                        var err = new
+                        {
+                            message = error.Error.Message
+                        };
+                        await context.Response.WriteAsJsonAsync(err);
+                    }
+                });
+            });
             app.UseCors("DefaultCORS");
             app.UseAuthentication();
             app.UseAuthorization();

@@ -16,5 +16,7 @@ namespace AmazeCareAPI.Interfaces
         Task<PaginatedPatientResponseDTO> SearchPatients(PatientSearchRequestDTO request);
         Task<IEnumerable<PatientSearchResponseDTO>> GetPatientsByStatusAsync(int statusId);
         Task<bool> DeactivatePatientAsync(int patientId);
+        Task<IEnumerable<Patient>> GetPatientsByDoctorIdAsync(int doctorId);
+
     }
 }

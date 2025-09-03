@@ -69,7 +69,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Doctor")]
         public async Task<IActionResult> UpdateDoctor(int id, [FromBody] UpdateDoctorRequestDTO request)
         {
             var updated = await _doctorService.UpdateDoctor(id, request);
@@ -89,7 +89,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpGet("form-data")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Doctor")]
         public async Task<IActionResult> GetDataForAddingDoctors()
         {
             var data = await _doctorService.GetDataForAddingDoctors();
@@ -97,7 +97,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpPost("search")]
-        [Authorize(Roles = "Admin,Doctor")]
+        [Authorize(Roles = "Admin,Doctor,Patient")]
         public async Task<IActionResult> SearchDoctors([FromBody] DoctorSearchRequestDTO request)
         {
             var result = await _doctorService.SearchDoctors(request);

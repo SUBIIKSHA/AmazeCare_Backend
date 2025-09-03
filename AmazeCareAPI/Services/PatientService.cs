@@ -41,6 +41,16 @@ namespace AmazeCareAPI.Services
         {
             return await _patientRepository.GetById(id);
         }
+        public async Task<IEnumerable<Patient>> GetPatientsByDoctorIdAsync(int doctorId)
+        {
+            var patients = await _context.Appointments
+                .Where(a => a.DoctorID == doctorId)
+                .Select(a => a.Patient)
+                .Distinct()
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<Patient>>(patients);
+        }
 
         public async Task<Patient> AddPatient(AddPatientRequestDTO request)
         {

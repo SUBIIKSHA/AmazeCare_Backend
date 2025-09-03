@@ -17,4 +17,5 @@ public class UpdatePatientRequestDTO
 
     [StringLength(250, ErrorMessage = "Address cannot exceed 250 characters.")]
     public string? Address { get; set; }
+     public string BloodGroup { get; set; } = string.Empty;
 }

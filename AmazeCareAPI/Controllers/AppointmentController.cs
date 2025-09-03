@@ -79,9 +79,9 @@ namespace AmazeCareAPI.Controllers
 
         [HttpPut("approve/{appointmentId}")]
         [Authorize(Roles = "Doctor")]
-        public async Task<ActionResult<Appointment>> ApproveAppointment(int appointmentId, [FromBody] DateTime? scheduledDateTime)
+        public async Task<ActionResult<Appointment>> ApproveAppointment(int appointmentId)
         {
-            var result = await _appointmentService.ApproveAppointment(appointmentId, scheduledDateTime);
+            var result = await _appointmentService.ApproveAppointment(appointmentId);
             return Ok(result);
         }
 

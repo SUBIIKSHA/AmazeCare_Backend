@@ -86,17 +86,11 @@ namespace AmazeCareAPI.Services
             };
         }
 
-        public async Task<Appointment> ApproveAppointment(int appointmentId, DateTime? scheduledDateTime)
+        public async Task<Appointment> ApproveAppointment(int appointmentId)
         {
             var appointment = await _appointmentRepo.GetById(appointmentId)
                 ?? throw new NotFoundException("appointments");
 
-            var newDateTime = scheduledDateTime ?? appointment.AppointmentDateTime;
-
-            if (!await IsSlotAvailable(appointment.DoctorID, newDateTime, appointment.AppointmentID))
-                throw new InvalidOperationException("The doctor is not available at this time slot.");
-
-            appointment.AppointmentDateTime = newDateTime;
             appointment.StatusID = 2;
 
             return await _appointmentRepo.Update(appointmentId, appointment);

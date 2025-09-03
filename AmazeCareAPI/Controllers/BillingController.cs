@@ -19,7 +19,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Doctor,Patient")]
+        [Authorize(Roles = "Admin,Patient")]
         public async Task<ActionResult<IEnumerable<BillingResponseDTO>>> GetAll()
         {
             var billings = await _billingService.GetAllAsync();
@@ -27,7 +27,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,Doctor")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<BillingResponseDTO>> GetById(int id)
         {
             try
@@ -42,7 +42,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpGet("appointment/{appointmentId}")]
-        [Authorize(Roles = "Admin,Doctor")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<BillingResponseDTO>>> GetByAppointmentId(int appointmentId)
         {
             var billings = await _billingService.GetByAppointmentIdAsync(appointmentId);
@@ -50,7 +50,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpGet("status/{statusId}")]
-        [Authorize(Roles = "Admin,Doctor")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<BillingResponseDTO>>> GetByStatusId(int statusId)
         {
             var billings = await _billingService.GetByStatusIdAsync(statusId);
@@ -58,7 +58,7 @@ namespace AmazeCareAPI.Controllers
         }
 
         [HttpGet("date-range")]
-        [Authorize(Roles = "Admin,Doctor")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<BillingResponseDTO>>> GetByDateRange(
             [FromQuery] DateTime from,
             [FromQuery] DateTime to)
